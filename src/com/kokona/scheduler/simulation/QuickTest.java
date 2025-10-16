@@ -3,6 +3,7 @@ package com.kokona.scheduler.simulation;
 import com.kokona.scheduler.model.Task;
 import com.kokona.scheduler.schedulers.FifoScheduler;
 import com.kokona.scheduler.schedulers.LifoScheduler;
+import com.kokona.scheduler.schedulers.SJFScheduler;
 import com.kokona.scheduler.schedulers.Scheduler;
 
 public class QuickTest {
@@ -11,6 +12,7 @@ public class QuickTest {
         
         testFIFO();
         testLIFO();
+        testSJF();
     }
     
     private static void testFIFO() {
@@ -31,6 +33,8 @@ public class QuickTest {
             System.out.print(task.getId() + " ");
         }
         System.out.println("\nExpected: T1 T2 T3");
+        
+        System.out.println("!FIFO test completed!");
     }
     
     private static void testLIFO() {
@@ -59,7 +63,7 @@ public class QuickTest {
         System.out.println("\n--- Testing SJF Scheduler ---");
         SJFScheduler scheduler = new SJFScheduler(10);
         
-        // Добавляем задачи в произвольном порядке
+        // добавляем задачи в произвольном порядке
         Task task1 = new Task("T1", 0, 5);  // время выполнения: 5
         Task task2 = new Task("T2", 1, 2);  // время выполнения: 2
         Task task3 = new Task("T3", 2, 8);  // время выполнения: 8

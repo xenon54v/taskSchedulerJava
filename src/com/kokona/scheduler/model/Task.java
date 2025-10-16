@@ -17,7 +17,7 @@ public class Task {
         this.finishTime = -1;  // -1 означает, что задача еще не завершена
     }
 	
-	// Геттеры
+	// геттеры
     public String getId() { return id; }
     public int getArrivalTime() { return arrivalTime; }
     public int getExecutionTime() { return executionTime; }
@@ -25,7 +25,7 @@ public class Task {
     public int getStartTime() { return startTime; }
     public int getFinishTime() { return finishTime; }
     
- // Сеттеры
+    // сеттеры
     public void setRemainingTime(int remainingTime) { 
         this.remainingTime = remainingTime; 
     }
@@ -37,7 +37,7 @@ public class Task {
     }
     
     /**
-     * Выполняет задачу в течение указанного кванта времени
+     * выполняет задачу в течение указанного кванта времени
      * @param timeQuantum квант времени для выполнения
      * @return true если задача завершена, false если еще осталось время
      */
@@ -45,34 +45,34 @@ public class Task {
     public boolean execute(int timeQuantum) {
         if (remainingTime <= timeQuantum) {
             remainingTime = 0;
-            return true; // Задача завершена
+            return true; // задача завершена
         } else {
             remainingTime -= timeQuantum;
-            return false; // Задача не завершена
+            return false; // задача не завершена
         }
     }
     
     /**
-     * Вычисляет время ожидания задачи
+     * вычисляет время ожидания задачи
      * @return время ожидания (startTime - arrivalTime)
      */
     
     public int getWaitingTime() {
-        if (startTime == -1) return 0; // Задача еще не начиналась
+        if (startTime == -1) return 0; // задача еще не начиналась
         return startTime - arrivalTime;
     }
     
     /**
-     * Вычисляет общее время выполнения (от поступления до завершения)
+     * вычисляет общее время выполнения (от поступления до завершения)
      * @return общее время выполнения (finishTime - arrivalTime)
      */
     public int getTurnaroundTime() {
-        if (finishTime == -1) return 0; // Задача еще не завершена
+        if (finishTime == -1) return 0; // задача еще не завершена
         return finishTime - arrivalTime;
     }
     
     /**
-     * Проверяет, завершена ли задача
+     * проверяет, завершена ли задача
      * @return true если задача завершена
      */
     public boolean isCompleted() {

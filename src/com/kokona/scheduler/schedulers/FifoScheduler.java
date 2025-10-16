@@ -5,6 +5,12 @@ import java.util.LinkedList;
 import java.util.Optional;
 import java.util.Queue;
 
+/**
+ * реализация планировщика FIFO (First-In-First-Out)
+ * первая добавленная задача выполняется первой
+ * использует структуру данных Queue
+ */
+
 public class FifoScheduler implements Scheduler {
 private final Queue<Task> queue = new LinkedList<>();
     

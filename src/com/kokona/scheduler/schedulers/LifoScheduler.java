@@ -5,12 +5,12 @@ import java.util.Optional;
 import java.util.Stack;
 
 	/**
-	 * Реализация планировщика LIFO (Last-In-First-Out)
-	 * Последняя добавленная задача выполняется первой
-	 * Использует структуру данных Stack
+	 * реализация планировщика LIFO (Last-In-First-Out)
+	 * последняя добавленная задача выполняется первой
+	 * использует структуру данных Stack
 	 */
 	public class LifoScheduler implements Scheduler {
-	    private final Stack<Task> stack;  // Структура данных Stack для LIFO
+	    private final Stack<Task> stack;  // структура данных Stack для LIFO
 	    private final String name;
 	    
 	    public LifoScheduler() {
@@ -20,7 +20,7 @@ import java.util.Stack;
 	    
 	    @Override
 	    public void addTask(Task task) {
-	        stack.push(task);  // Добавляем задачу в вершину стека
+	        stack.push(task);  // добавляем задачу в вершину стека
 	        System.out.println("Added task: " + task.getId() + " (Stack size: " + stack.size() + ")");
 	    }
 	    
@@ -29,7 +29,7 @@ import java.util.Stack;
 	        if (stack.isEmpty()) {
 	            return Optional.empty();
 	        }
-	        Task task = stack.pop();  // Извлекаем задачу с вершины стека
+	        Task task = stack.pop();  // извлекаем задачу с вершины стека
 	        System.out.println("Processing task: " + task.getId() + " (Stack size: " + stack.size() + ")");
 	        return Optional.of(task);
 	    }
@@ -44,16 +44,12 @@ import java.util.Stack;
 	        return name;
 	    }
 	    
-	    /**
-	     * Дополнительный метод для просмотра вершины стека без извлечения
-	     */
+	    // дополнительный метод для просмотра вершины стека без извлечения
 	    public Optional<Task> peek() {
 	        return stack.isEmpty() ? Optional.empty() : Optional.of(stack.peek());
 	    }
 	    
-	    /**
-	     * Возвращает текущий размер стека
-	     */
+	    //возвращает текущий размер стека
 	    public int getSize() {
 	        return stack.size();
 	    }
