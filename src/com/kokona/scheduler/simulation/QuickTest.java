@@ -52,6 +52,6 @@ public class QuickTest {
         }
         System.out.println("\nExpected: T3 T2 T1");
         
-        System.out.println("✅ LIFO test completed!");
+        System.out.println("!LIFO test completed!");
     }
 }
