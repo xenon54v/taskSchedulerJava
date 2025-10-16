@@ -54,4 +54,28 @@ public class QuickTest {
         
         System.out.println("!LIFO test completed!");
     }
+    
+    private static void testSJF() {
+        System.out.println("\n--- Testing SJF Scheduler ---");
+        SJFScheduler scheduler = new SJFScheduler(10);
+        
+        // Добавляем задачи в произвольном порядке
+        Task task1 = new Task("T1", 0, 5);  // время выполнения: 5
+        Task task2 = new Task("T2", 1, 2);  // время выполнения: 2
+        Task task3 = new Task("T3", 2, 8);  // время выполнения: 8
+        Task task4 = new Task("T4", 3, 1);  // время выполнения: 1
+        
+        scheduler.addTask(task1);
+        scheduler.addTask(task2);
+        scheduler.addTask(task3);
+        scheduler.addTask(task4);
+        
+        System.out.print("SJF Execution order: ");
+        while (scheduler.hasTasks()) {
+            Task task = scheduler.getNextTask().get();
+            System.out.print(task.getId() + "(" + task.getExecutionTime() + ") ");
+        }
+        System.out.println("\nExpected: T4(1) T2(2) T1(5) T3(8)");
+        System.out.println("!SJF test completed!");
+    }
 }
