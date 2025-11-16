@@ -18,6 +18,14 @@ public class SchedulerMetrics {
         this.schedulerName = schedulerName;
     }
     
+    public int getDeadlineMisses() {
+        return deadlineMisses;
+    }
+
+    public double getDeadlineMissRate() {
+        return completedTasks > 0 ? (deadlineMisses * 100.0 / completedTasks) : 0;
+    }
+    
     public void incrementTime() {
         currentTime++;
     }
@@ -36,11 +44,13 @@ public class SchedulerMetrics {
         
         if (task.isDeadlineMissed()) {
             deadlineMisses++;
+            System.out.printf("⏰ Time %d: %s ВЫПОЛНЕНА (ожидание=%d, ПРОПУЩЕН дедлайн %d)%n",
+                currentTime, task.getId(), 
+                task.getWaitingTime(), task.getDeadline());
+        } else {
+            System.out.printf("✅ Time %d: %s выполнена (ожидание=%d)%n",
+                currentTime, task.getId(), task.getWaitingTime());
         }
-        
-        System.out.printf("Time %d: %s completed %s (WT=%d, TAT=%d)%n",
-            currentTime, schedulerName, task.getId(), 
-            task.getWaitingTime(), task.getTurnaroundTime());
     }
     
     public void printMetrics() {
