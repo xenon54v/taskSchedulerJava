@@ -7,13 +7,19 @@ import com.kokona.scheduler.schedulers.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class QuickTest {
     public static void main(String[] args) {
+    	Scanner scanner = new Scanner(System.in);
+    	
         System.out.println("=== СРАВНЕНИЕ АЛГОРИТМОВ ПЛАНИРОВАНИЯ ===");
         
+        System.out.print("\n Введите количество задач для тестирования: ");
+        int taskCount = scanner.nextInt();
+        
         // Генерируем тестовые задачи
-        List<Task> testTasks = TaskGenerator.generateTasks(10, 30, 15);
+        List<Task> testTasks = TaskGenerator.generateTasks(taskCount, 30, 15);
         
         // Печатаем понятную информацию о задачах
         printClearTaskOverview(testTasks);
@@ -22,7 +28,7 @@ public class QuickTest {
         List<Scheduler> schedulers = List.of(
             new FifoScheduler(),
             new LifoScheduler(), 
-            new SJFScheduler(20)
+            new SJFScheduler()
         );
         
         List<SchedulerMetrics> results = new ArrayList<>();
@@ -36,10 +42,12 @@ public class QuickTest {
         // Понятное сравнение результатов
         SchedulerSimulator.printClearComparison(results);
         SchedulerSimulator.printPerformanceAnalysis(results);
+        
+        scanner.close();
     }
     
     private static void printClearTaskOverview(List<Task> tasks) {
-        System.out.println("\n📊 ОБЗОР ТЕСТОВЫХ ЗАДАЧ:");
+        System.out.println("\n! ОБЗОР ТЕСТОВЫХ ЗАДАЧ:");
         System.out.println("Всего задач: " + tasks.size());
         
         long cpuCount = tasks.stream().filter(t -> t.getType() == Task.TaskType.CPU_BOUND).count();
@@ -47,7 +55,7 @@ public class QuickTest {
         
         System.out.printf("CPU-bound: %d | IO-bound: %d%n", cpuCount, ioCount);
         
-        System.out.println("\n⏰ Время поступления задач:");
+        System.out.println("\n Время поступления задач:");
         for (int i = 0; i < Math.min(5, tasks.size()); i++) {
             Task task = tasks.get(i);
             System.out.printf("  %s: прибытие=%d, выполнение=%d, дедлайн=%d%n",
@@ -59,103 +67,4 @@ public class QuickTest {
         }
     }
     
-    
-    
-    private static void printPerformanceAnalysis(List<SchedulerMetrics> results) {
-        System.out.println("\n💡 АНАЛИЗ РЕЗУЛЬТАТОВ:");
-        System.out.println("-".repeat(50));
-        
-        if (results.size() < 3) {
-            System.out.println("Недостаточно данных для анализа");
-            return;
-        }
-        
-        SchedulerMetrics fifo = results.get(0);
-        SchedulerMetrics lifo = results.get(1);
-        SchedulerMetrics sjf = results.get(2);
-        
-        // Находим ЛУЧШИЙ алгоритм по времени ожидания
-        SchedulerMetrics bestByWaitingTime = results.stream()
-            .min((a, b) -> Double.compare(a.getAverageWaitingTime(), b.getAverageWaitingTime()))
-            .orElse(fifo);
-        
-        // Находим ЛУЧШИЙ алгоритм по дедлайнам
-        SchedulerMetrics bestByDeadlines = results.stream()
-            .min((a, b) -> Double.compare(a.getDeadlineMissRate(), b.getDeadlineMissRate()))
-            .orElse(fifo);
-        
-        // Анализ эффективности
-        System.out.println("📊 ОБЩАЯ ЭФФЕКТИВНОСТЬ:");
-        
-        // Лучший по времени ожидания
-        if (bestByWaitingTime.getSchedulerName().equals("SJF")) {
-            double improvementVsFifo = ((fifo.getAverageWaitingTime() - sjf.getAverageWaitingTime()) / 
-                                       fifo.getAverageWaitingTime()) * 100;
-            System.out.printf("• %s - лучший по времени ожидания (на %.1f%% лучше FIFO)%n",
-                bestByWaitingTime.getSchedulerName(), improvementVsFifo);
-        } else if (bestByWaitingTime.getSchedulerName().equals("LIFO")) {
-            double improvementVsFifo = ((fifo.getAverageWaitingTime() - lifo.getAverageWaitingTime()) / 
-                                       fifo.getAverageWaitingTime()) * 100;
-            System.out.printf("• %s - лучший по времени ожидания (на %.1f%% лучше FIFO)%n",
-                bestByWaitingTime.getSchedulerName(), improvementVsFifo);
-        } else {
-            System.out.printf("• %s - показывает сбалансированные результаты%n", bestByWaitingTime.getSchedulerName());
-        }
-        
-        // Лучший по дедлайнам
-        if (!bestByDeadlines.getSchedulerName().equals(bestByWaitingTime.getSchedulerName())) {
-            System.out.printf("• %s - лучший по соблюдению дедлайнов%n", bestByDeadlines.getSchedulerName());
-        }
-        
-        // Анализ проблем
-        System.out.println("\n⚠️  ВЫЯВЛЕННЫЕ ПРОБЛЕМЫ:");
-        
-        // Анализ пропусков дедлайнов
-        SchedulerMetrics worstByDeadlines = results.stream()
-            .max((a, b) -> Double.compare(a.getDeadlineMissRate(), b.getDeadlineMissRate()))
-            .orElse(fifo);
-        
-        if (worstByDeadlines.getDeadlineMissRate() > 50) {
-            System.out.printf("• %s имеет высокий процент пропусков дедлайнов (%.0f%%)%n",
-                worstByDeadlines.getSchedulerName(), worstByDeadlines.getDeadlineMissRate());
-        }
-        
-        // Анализ времени ожидания
-        SchedulerMetrics worstByWaiting = results.stream()
-            .max((a, b) -> Double.compare(a.getAverageWaitingTime(), b.getAverageWaitingTime()))
-            .orElse(fifo);
-        
-        if (worstByWaiting.getAverageWaitingTime() > bestByWaitingTime.getAverageWaitingTime() * 1.5) {
-            System.out.printf("• %s имеет значительно большее время ожидания%n",
-                worstByWaiting.getSchedulerName());
-        }
-        
-        // Рекомендации на основе реальных данных
-        System.out.println("\n🎯 РЕКОМЕНДАЦИИ:");
-        
-        // Для SJF
-        if (sjf.getAverageWaitingTime() < fifo.getAverageWaitingTime() * 0.7) {
-            System.out.println("• SJF эффективен для workloads с короткими задачами");
-        }
-        
-        // Для LIFO
-        if (lifo.getAverageWaitingTime() > fifo.getAverageWaitingTime()) {
-            System.out.println("• LIFO может увеличивать starvation длинных задач");
-        } else if (lifo.getAverageWaitingTime() < fifo.getAverageWaitingTime()) {
-            System.out.println("• LIFO неожиданно эффективен в данном тесте");
-        }
-        
-        // Общие рекомендации
-        if (bestByDeadlines.getDeadlineMissRate() > 30) {
-            System.out.println("• Рассмотрите алгоритмы с учетом дедлайнов (EDF)");
-        }
-        
-        if (results.stream().anyMatch(m -> m.getAverageWaitingTime() > 30)) {
-            System.out.println("• Высокое время ожидания suggests неоптимальное планирование");
-        }
-        
-        // Финальный вывод
-        System.out.printf("%n🏆 ВЫВОД: %s показал наилучшие результаты в данном тесте%n",
-            bestByWaitingTime.getSchedulerName());
-    }
 }

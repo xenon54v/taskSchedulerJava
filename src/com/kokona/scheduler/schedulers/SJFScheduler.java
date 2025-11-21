@@ -14,8 +14,13 @@ public class SJFScheduler implements Scheduler {
 	private final MinHeap heap;
 	private final String name;
 	
-	public SJFScheduler(int capacity) {
-        this.heap = new MinHeap(capacity);
+	public SJFScheduler() {
+        this.heap = new MinHeap();
+        this.name = "SJF";
+    }
+	
+	public SJFScheduler(int initialCapacity) {
+        this.heap = new MinHeap(initialCapacity);
         this.name = "SJF";
     }
 	

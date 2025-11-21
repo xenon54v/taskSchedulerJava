@@ -79,11 +79,9 @@ public class Task {
     public void setFinishTime(int finishTime) { 
         this.finishTime = finishTime; 
     }
-    
-    // === НОВЫЕ СЕТТЕРЫ ===
-    public void setPriority(int priority) { this.priority = priority; }
-    public void setResponseTime(int responseTime) { this.responseTime = responseTime; }
-    public void incrementContextSwitches() { this.contextSwitches++; }
+    public void setPriority(int priority) { 
+        this.priority = priority;
+    }
     
     /**
      * Выполняет задачу в течение указанного кванта времени

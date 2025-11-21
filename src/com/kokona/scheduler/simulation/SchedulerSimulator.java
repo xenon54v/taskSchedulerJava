@@ -69,7 +69,7 @@ public class SchedulerSimulator {
     
     public static void printClearComparison(List<SchedulerMetrics> results) {
         System.out.println("\n" + "=".repeat(80));
-        System.out.println("📈 СРАВНЕНИЕ ПРОИЗВОДИТЕЛЬНОСТИ");
+        System.out.println(" СРАВНЕНИЕ ПРОИЗВОДИТЕЛЬНОСТИ");
         System.out.println("=".repeat(80));
         
         System.out.printf("%-12s %-8s %-10s %-12s %-12s %-18s%n", 
@@ -111,40 +111,9 @@ public class SchedulerSimulator {
 		return allTasksCompleted || currentTime >= maxTime * 2; // Увеличиваем лимит на всякий случай
     }
     
-    private static void printDetailedComparison(List<SchedulerMetrics> results) {
-        System.out.println("\n" + "=".repeat(80));
-        System.out.println("DETAILED PERFORMANCE ANALYSIS");
-        System.out.println("=".repeat(80));
-        
-        System.out.printf("%-15s %-8s %-8s %-12s %-12s %-12s%n", 
-            "Scheduler", "Tasks", "Time", "Avg WT", "Avg TAT", "WT Improvement");
-        System.out.println("-".repeat(80));
-        
-        double baseWT = results.get(0).getAverageWaitingTime();
-        
-        for (SchedulerMetrics metrics : results) {
-            double improvement = ((baseWT - metrics.getAverageWaitingTime()) / baseWT) * 100;
-            System.out.printf("%-15s %-8d %-8d %-12.2f %-12.2f %-11.1f%%%n",
-                metrics.getSchedulerName(),
-                metrics.getCompletedTasks(),
-                metrics.getCurrentTime(),
-                metrics.getAverageWaitingTime(),
-                metrics.getAverageTurnaroundTime(),
-                improvement);
-        }
-        
-        // Анализ эффективности
-        System.out.println("\n--- KEY INSIGHTS ---");
-        System.out.printf("SJF reduces waiting time by %.1f%% compared to FIFO%n", 
-            ((results.get(0).getAverageWaitingTime() - results.get(2).getAverageWaitingTime()) / 
-             results.get(0).getAverageWaitingTime()) * 100);
-        System.out.printf("SJF reduces turnaround time by %.1f%% compared to FIFO%n",
-            ((results.get(0).getAverageTurnaroundTime() - results.get(2).getAverageTurnaroundTime()) / 
-             results.get(0).getAverageTurnaroundTime()) * 100);
-    }
     
     public static void printPerformanceAnalysis(List<SchedulerMetrics> results) {
-        System.out.println("\n💡 АНАЛИЗ РЕЗУЛЬТАТОВ:");
+        System.out.println("\n АНАЛИЗ РЕЗУЛЬТАТОВ:");
         System.out.println("-".repeat(50));
         
         if (results.size() >= 3) {
@@ -159,25 +128,25 @@ public class SchedulerSimulator {
                                     fifo.getAverageTurnaroundTime()) * 100;
             
             System.out.printf("SJF vs FIFO:%n");
-            System.out.printf("  • Снижение времени ожидания: +%.1f%%%n", wtImprovement);
-            System.out.printf("  • Снижение общего времени: +%.1f%%%n", tatImprovement);
+            System.out.printf("  # Снижение времени ожидания: +%.1f%%%n", wtImprovement);
+            System.out.printf("  # Снижение общего времени: +%.1f%%%n", tatImprovement);
             
             // Сравнение LIFO vs FIFO
             double lifoWorse = ((lifo.getAverageWaitingTime() - fifo.getAverageWaitingTime()) / 
                                fifo.getAverageWaitingTime()) * 100;
             
             System.out.printf("LIFO vs FIFO:%n");
-            System.out.printf("  • Увеличение времени ожидания: %.1f%%%n", lifoWorse);
+            System.out.printf("  # Увеличение времени ожидания: %.1f%%%n", lifoWorse);
             
             // Рекомендации
-            System.out.println("\n🎯 РЕКОМЕНДАЦИИ:");
+            System.out.println("\n РЕКОМЕНДАЦИИ:");
             if (wtImprovement > 15) {
-                System.out.println("  • SJF значительно эффективнее для коротких задач");
+                System.out.println("  # SJF значительно эффективнее для коротких задач");
             }
             if (lifoWorse > 0) {
-                System.out.println("  • LIFO не рекомендуется для production систем");
+                System.out.println("  # LIFO не рекомендуется для production систем");
             }
-            System.out.println("  • FIFO обеспечивает справедливость, но не оптимальность");
+            System.out.println("  # FIFO обеспечивает справедливость, но не оптимальность");
         }
     }
 }

@@ -1,65 +1,69 @@
 package com.kokona.scheduler.datastructures;
 
 import com.kokona.scheduler.model.Task;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MinHeap {
-	private Task[] heap;
+	private List<Task> heap;
 	private int size;
-	private final int capacity;
 	
-	public MinHeap(int capacity) {
-		this.capacity = capacity;
-		this.heap = new Task[capacity];
+	public MinHeap() {
+		this.heap = new ArrayList<>();
+		this.size = 0;
+	}
+	
+	public MinHeap(int initialCapacity) {
+		this.heap = new ArrayList<>(initialCapacity);
 		this.size = 0;
 	}
 	
 	// плюс задачу в кучу
 	
 	public void insert(Task task) {
-        if (size == capacity) {
-            throw new IllegalStateException("Heap is full");
-        }
-        
-     // добавляем элемент в конец
-        heap[size] = task;
+        // добавляем элемент в конец
+        heap.add(task);
+        size++;
         
         // восстанавливаем свойства кучи "вверх"
-        heapifyUp(size);
-        size++;
-	}
-	
-	// извлекаем задачу с наименьшим временем
-	
-	public Task extractMin() {
+        heapifyUp(size - 1);
+    }
+    
+    // извлекаем задачу с наименьшим временем
+    public Task extractMin() {
         if (size == 0) {
             throw new IllegalStateException("Heap is empty");
         }
         
-        Task min = heap[0];
-        heap[0] = heap[size - 1];
+        Task min = heap.get(0);
+        // перемещаем последний элемент в корень
+        heap.set(0, heap.get(size - 1));
+        heap.remove(size - 1); // удаляем последний элемент
         size--;
         
-        heapifyDown(0); // восстанавливаем св-во кучи "вниз"
+        if (size > 0) {
+            heapifyDown(0); // восстанавливаем св-во кучи "вниз"
+        }
         return min;
-	}
-	
-	// проверка пуста ли куча
-	public boolean isEmpty() {
-		return size == 0;
-	}
-	
-	// текущее кол-во элементов в куче
-	public int getSize() {
-		return size;
-	}
-	
-	// поднимаем элемент вверх
-	private void heapifyUp(int index) {
+    }
+    
+    // проверка пуста ли куча
+    public boolean isEmpty() {
+        return size == 0;
+    }
+    
+    // текущее кол-во элементов в куче
+    public int getSize() {
+        return size;
+    }
+    
+    // поднимаем элемент вверх
+    private void heapifyUp(int index) {
         while (index > 0) {
             int parentIndex = (index - 1) / 2; // индекс родителя
             
             // если элемент уже больше или равен родителю - остановка
-            if (heap[index].getExecutionTime() >= heap[parentIndex].getExecutionTime()) {
+            if (heap.get(index).getExecutionTime() >= heap.get(parentIndex).getExecutionTime()) {
                 break;
             }
             
@@ -67,10 +71,10 @@ public class MinHeap {
             swap(index, parentIndex);
             index = parentIndex; // переходим к родителю
         }
-	}
-	
-	// опускаем элемент вниз
-	private void heapifyDown(int index) {
+    }
+    
+    // опускаем элемент вниз
+    private void heapifyDown(int index) {
         while (true) {
             int leftChild = 2 * index + 1;  // левый потомок
             int rightChild = 2 * index + 2; // правый потомок
@@ -78,13 +82,13 @@ public class MinHeap {
             
             // сравниваем с левым потомком
             if (leftChild < size && 
-                heap[leftChild].getExecutionTime() < heap[smallest].getExecutionTime()) {
+                heap.get(leftChild).getExecutionTime() < heap.get(smallest).getExecutionTime()) {
                 smallest = leftChild;
             }
             
             // сравниваем с правым потомком
             if (rightChild < size && 
-                heap[rightChild].getExecutionTime() < heap[smallest].getExecutionTime()) {
+                heap.get(rightChild).getExecutionTime() < heap.get(smallest).getExecutionTime()) {
                 smallest = rightChild;
             }
             
@@ -98,21 +102,20 @@ public class MinHeap {
             index = smallest; // переходим к потомку
         }
     }
-	
-	// свэпаем два элемента в куче
-	private void swap(int i, int j) {
-        Task temp = heap[i];
-        heap[i] = heap[j];
-        heap[j] = temp;
+    
+    // свэпаем два элемента в куче
+    private void swap(int i, int j) {
+        Task temp = heap.get(i);
+        heap.set(i, heap.get(j));
+        heap.set(j, temp);
     }
-	
-	// выводит содержимое кучи
-	public void printHeap() {
+    
+    // выводит содержимое кучи
+    public void printHeap() {
         System.out.print("Heap: ");
         for (int i = 0; i < size; i++) {
-            System.out.print(heap[i].getId() + "(" + heap[i].getExecutionTime() + ") ");
+            System.out.print(heap.get(i).getId() + "(" + heap.get(i).getExecutionTime() + ") ");
         }
         System.out.println();
     }
-	
 }
