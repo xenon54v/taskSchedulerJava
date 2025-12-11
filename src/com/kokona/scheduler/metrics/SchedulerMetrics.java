@@ -13,6 +13,15 @@ public class SchedulerMetrics {
     private int deadlineMisses = 0;
     private int idleTime = 0;
     private final List<Task> completedTasksList = new ArrayList<>();
+    private int totalContextSwitches = 0;
+
+    public void recordContextSwitch() {
+        totalContextSwitches++;
+    }
+
+    public int getTotalContextSwitches() {
+        return totalContextSwitches;
+    }
     
     public SchedulerMetrics(String schedulerName) {
         this.schedulerName = schedulerName;
@@ -59,6 +68,7 @@ public class SchedulerMetrics {
         System.out.println("Completed tasks: " + completedTasks);
         System.out.println("Idle time: " + idleTime + " (" + 
             String.format("%.1f%%", (idleTime * 100.0 / currentTime)) + ")");
+        System.out.println("Context switches: " + totalContextSwitches);  // ✅ Новое
         
         if (completedTasks > 0) {
             double avgWaiting = (double) totalWaitingTime / completedTasks;

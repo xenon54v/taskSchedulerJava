@@ -28,7 +28,9 @@ public class QuickTest {
         List<Scheduler> schedulers = List.of(
             new FifoScheduler(),
             new LifoScheduler(), 
-            new SJFScheduler()
+            new SJFScheduler(),
+            new PriorityScheduler(),
+            new PreemptivePriorityScheduler()
         );
         
         List<SchedulerMetrics> results = new ArrayList<>();

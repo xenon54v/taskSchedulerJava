@@ -82,6 +82,9 @@ public class Task {
     public void setPriority(int priority) { 
         this.priority = priority;
     }
+    public void incrementContextSwitches() {
+        this.contextSwitches++;
+    }
     
     /**
      * Выполняет задачу в течение указанного кванта времени

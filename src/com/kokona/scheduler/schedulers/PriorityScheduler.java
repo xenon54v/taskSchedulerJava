@@ -3,26 +3,37 @@ package com.kokona.scheduler.schedulers;
 import com.kokona.scheduler.model.Task;
 import com.kokona.scheduler.datastructures.MinHeap;
 import java.util.Comparator;
+import java.util.Optional;
 
-public class PriorityScheduler extends Scheduler {
-	private MinHeap<Task> heap;
-	
-	public PriorityScheduler() {
-		heap = new MinHeap<>(Comparator.comparingInt(Task::getPriority).reversed());
-	}
-	
-	@Override
-    public void addTask(Task task) {
-        heap.insert(task);
-        metrics.taskAdded(task);
+/**
+ * Неприоритетный планировщик на основе приоритетов
+ * Задачи с МЕНЬШИМ числовым значением priority имеют БОЛЬШИЙ приоритет
+ * Пример: priority=1 выполняется раньше priority=10
+ */
+public class PriorityScheduler implements Scheduler {
+    protected MinHeap<Task> heap;
+    
+    public PriorityScheduler() {
+        // Меньший приоритет = выше в очереди (priority=1 раньше priority=10)
+        heap = new MinHeap<>(Comparator.comparingInt(Task::getPriority));
     }
     
     @Override
-    public Task getNextTask() {
+    public void addTask(Task task) {
+        heap.insert(task);
+        System.out.printf("  [Priority] Task %s added (priority=%d, exec=%d)%n",
+            task.getId(), task.getPriority(), task.getExecutionTime());
+    }
+    
+    @Override
+    public Optional<Task> getNextTask() {
         if (heap.isEmpty()) {
-            return null;
+            return Optional.empty();
         }
-        return heap.extractMin();
+        Task task = heap.extractMin();
+        System.out.printf("  [Priority] Processing task %s (priority=%d)%n",
+            task.getId(), task.getPriority());
+        return Optional.of(task);
     }
     
     @Override
@@ -31,18 +42,7 @@ public class PriorityScheduler extends Scheduler {
     }
     
     @Override
-    public List<Task> getAllTasks() {
-        return heap.getAllElements();
-    }
-    
-    @Override
-    public void clear() {
-        heap.clear();
-    }
-    
-    @Override
     public String getName() {
-        return "Priority Scheduler (Non-Preemptive)";
+        return "Priority (Non-Preemptive)";
     }
-
 }
