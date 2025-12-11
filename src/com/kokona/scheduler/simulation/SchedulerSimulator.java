@@ -144,7 +144,7 @@ public class SchedulerSimulator {
                 System.out.println("  # SJF значительно эффективнее для коротких задач");
             }
             if (lifoWorse > 0) {
-                System.out.println("  # LIFO не рекомендуется для production систем");
+                System.out.println("  # LIFO не рекомендуется для рабочих систем");
             }
             System.out.println("  # FIFO обеспечивает справедливость, но не оптимальность");
         }

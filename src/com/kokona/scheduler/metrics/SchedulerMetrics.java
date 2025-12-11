@@ -44,11 +44,11 @@ public class SchedulerMetrics {
         
         if (task.isDeadlineMissed()) {
             deadlineMisses++;
-            System.out.printf("⏰ Time %d: %s ВЫПОЛНЕНА (ожидание=%d, ПРОПУЩЕН дедлайн %d)%n",
+            System.out.printf(" Time %d: %s ВЫПОЛНЕНА (ожидание=%d, ПРОПУЩЕН дедлайн %d)%n",
                 currentTime, task.getId(), 
                 task.getWaitingTime(), task.getDeadline());
         } else {
-            System.out.printf("✅ Time %d: %s выполнена (ожидание=%d)%n",
+            System.out.printf(" Time %d: %s выполнена (ожидание=%d)%n",
                 currentTime, task.getId(), task.getWaitingTime());
         }
     }
