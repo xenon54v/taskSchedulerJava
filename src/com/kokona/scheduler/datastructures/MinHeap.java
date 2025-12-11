@@ -10,20 +10,21 @@ public class MinHeap<T> {
     private Comparator<T> comparator;
     private int size;
     
-    // Конструктор с компаратором (для любой логики сравнения)
+    // Конструктор с компаратором (основной)
     public MinHeap(Comparator<T> comparator) {
         this.heap = new ArrayList<>();
         this.comparator = comparator;
         this.size = 0;
     }
     
-    // Конструктор для обратной совместимости (по умолчанию сравнивает по времени выполнения)
+    // Конструктор для обратной совместимости (только для Task)
+    @SuppressWarnings("unchecked")
     public MinHeap() {
-        this((Comparator<T>) Comparator.comparingInt(t -> {
+        this((Comparator<T>) (Comparator<?>) Comparator.comparingInt(t -> {
             if (t instanceof Task) {
                 return ((Task) t).getExecutionTime();
             }
-            return 0;
+            throw new IllegalArgumentException("MinHeap() без параметров работает только с Task");
         }));
     }
     
@@ -95,7 +96,6 @@ public class MinHeap<T> {
         while (index > 0) {
             int parentIndex = (index - 1) / 2;
             
-            // Используем компаратор вместо сравнения по времени выполнения
             if (comparator.compare(heap.get(index), heap.get(parentIndex)) >= 0) {
                 break;
             }

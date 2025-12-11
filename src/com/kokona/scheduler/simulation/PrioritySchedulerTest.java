@@ -21,7 +21,7 @@ public class PrioritySchedulerTest {
         List<Task> testTasks = TaskGenerator.generateTasks(12, 25, 12);
         
         // Печатаем информацию о задачах
-        System.out.println("📋 ЗАДАЧИ ДЛЯ ТЕСТИРОВАНИЯ:");
+        System.out.println(" ЗАДАЧИ ДЛЯ ТЕСТИРОВАНИЯ:");
         System.out.println("─".repeat(70));
         System.out.printf("%-6s %-10s %-10s %-10s %-10s%n", 
             "ID", "Arrival", "Exec Time", "Priority", "Deadline");
@@ -56,7 +56,7 @@ public class PrioritySchedulerTest {
                 .mapToInt(Task::getContextSwitches)
                 .sum();
             
-            System.out.println("\n📊 СТАТИСТИКА " + scheduler.getName() + ":");
+            System.out.println("\n СТАТИСТИКА " + scheduler.getName() + ":");
             System.out.println("   Переключений контекста: " + totalSwitches);
             
             System.out.println("\n" + "═".repeat(70) + "\n");
@@ -71,7 +71,7 @@ public class PrioritySchedulerTest {
     
     private static void printPriorityAnalysis(List<SchedulerMetrics> results) {
         System.out.println("\n" + "═".repeat(70));
-        System.out.println("📈 АНАЛИЗ ПРИОРИТЕТНЫХ ПЛАНИРОВЩИКОВ");
+        System.out.println(" АНАЛИЗ ПРИОРИТЕТНЫХ ПЛАНИРОВЩИКОВ");
         System.out.println("═".repeat(70));
         
         if (results.size() >= 2) {
@@ -82,7 +82,7 @@ public class PrioritySchedulerTest {
                 ((nonPreemptive.getAverageWaitingTime() - preemptive.getAverageWaitingTime()) / 
                  nonPreemptive.getAverageWaitingTime()) * 100;
             
-            System.out.println("\n🔍 Preemptive vs Non-Preemptive:");
+            System.out.println("\n Preemptive vs Non-Preemptive:");
             System.out.printf("   ▸ Изменение среднего времени ожидания: %.1f%%%n", responseImprovement);
             
             if (preemptive.getDeadlineMisses() < nonPreemptive.getDeadlineMisses()) {
@@ -90,7 +90,7 @@ public class PrioritySchedulerTest {
                     preemptive.getDeadlineMisses(), nonPreemptive.getDeadlineMisses());
             }
             
-            System.out.println("\n💡 РЕКОМЕНДАЦИИ:");
+            System.out.println("\n РЕКОМЕНДАЦИИ:");
             System.out.println("   • Preemptive - для real-time систем с жесткими дедлайнами");
             System.out.println("   • Non-Preemptive - для систем с низкой стоимостью переключений");
             System.out.println("   • Приоритеты должны отражать важность задач");
