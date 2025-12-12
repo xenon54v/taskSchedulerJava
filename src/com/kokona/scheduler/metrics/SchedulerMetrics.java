@@ -21,6 +21,10 @@ public class SchedulerMetrics {
     public int getDeadlineMisses() {
         return deadlineMisses;
     }
+    
+    public int getTotalIdleTime1() {
+        return idleTime;
+    }
 
     public double getDeadlineMissRate() {
         return completedTasks > 0 ? (deadlineMisses * 100.0 / completedTasks) : 0;
