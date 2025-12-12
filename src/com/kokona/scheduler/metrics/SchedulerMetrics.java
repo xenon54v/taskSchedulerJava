@@ -81,5 +81,8 @@ public class SchedulerMetrics {
     public double getAverageTurnaroundTime() { 
         return completedTasks > 0 ? (double) totalTurnaroundTime / completedTasks : 0; 
     }
+    public int getTotalIdleTime() {
+        return idleTime;
+    }
 
 }
