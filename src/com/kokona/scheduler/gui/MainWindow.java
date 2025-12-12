@@ -9,6 +9,7 @@ import com.kokona.scheduler.metrics.SchedulerMetrics;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainWindow extends JFrame {
@@ -78,28 +79,38 @@ public class MainWindow extends JFrame {
     }
     
     private void runSimulation(int taskCount, int maxArrival, int maxExec) {
-        // Генерируем задачи
+        // 1. Генерируем задачи
         List<Task> tasks = TaskGenerator.generateTasks(taskCount, maxArrival, maxExec);
         
-        // Создаем выбранные планировщики
-        java.util.List<Scheduler> schedulers = new java.util.ArrayList<>();
+        // 2. Создаём планировщики
+        List<Scheduler> schedulers = new ArrayList<>();
         if (fifoCheck.isSelected()) schedulers.add(new FifoScheduler());
         if (lifoCheck.isSelected()) schedulers.add(new LifoScheduler());
         if (sjfCheck.isSelected()) schedulers.add(new SJFScheduler());
         
-        // Запускаем симуляцию для каждого планировщика
-        java.util.List<SchedulerMetrics> results = new java.util.ArrayList<>();
+        // 3. Запускаем симуляцию для каждого
+        List<TaskTablePanel.SimulationResult> allResults = new ArrayList<>();
         
         for (Scheduler scheduler : schedulers) {
-            // Клонируем задачи для каждого планировщика
+            // Клонируем задачи
             List<Task> clonedTasks = TaskGenerator.copyTasks(tasks);
             
             // Запускаем симуляцию
             SchedulerMetrics metrics = SchedulerSimulator.simulate(scheduler, clonedTasks);
-            results.add(metrics);
+            
+            // Сохраняем результаты
+            TaskTablePanel.SimulationResult result = 
+                new TaskTablePanel.SimulationResult(
+                    scheduler.getName(),
+                    metrics,
+                    clonedTasks  // Задачи после выполнения
+                );
+            allResults.add(result);
         }
         
-        // Открываем окно с результатами
-        new ResultsWindow(tasks, results);
+        // 4. Открываем окно с таблицей
+        SwingUtilities.invokeLater(() -> {
+            new ResultsWindow(allResults);
+        });
     }
 }
