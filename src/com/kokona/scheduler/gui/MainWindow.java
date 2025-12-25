@@ -53,10 +53,13 @@ public class MainWindow extends JFrame {
         
         // 3. Кнопка запуска (юг)
         JPanel buttonPanel = new JPanel();
-        runButton = new JButton("🚀 Запустить симуляцию");
+        runButton = new JButton("Запустить симуляцию");
         runButton.setFont(new Font("Arial", Font.BOLD, 14));
         runButton.setBackground(new Color(46, 204, 113));
-        runButton.setForeground(Color.WHITE);
+        runButton.setForeground(Color.BLACK);
+        runButton.setOpaque(true);
+        runButton.setBorderPainted(false);
+        runButton.setFocusPainted(false);
         runButton.setPreferredSize(new Dimension(200, 40));
         
         runButton.addActionListener(e -> runSimulation());
@@ -156,7 +159,7 @@ public class MainWindow extends JFrame {
         JButton button = new JButton("<html><center>" + title + "</center></html>");
         button.setToolTipText(tooltip);
         button.setBackground(color);
-        button.setForeground(Color.WHITE);
+        button.setForeground(Color.BLACK);
         button.setFont(new Font("Arial", Font.BOLD, 11));
         button.setPreferredSize(new Dimension(120, 60));
         button.setHorizontalTextPosition(SwingConstants.CENTER);
