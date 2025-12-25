@@ -8,137 +8,158 @@ import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 
 public class TaskTablePanel extends JPanel {
-    
+
     // Вспомогательный класс для хранения результатов
     public static class SimulationResult {
         public String schedulerName;
         public SchedulerMetrics metrics;
         public java.util.List<Task> executedTasks;
-        
+
         public SimulationResult(String name, SchedulerMetrics metrics, java.util.List<Task> tasks) {
             this.schedulerName = name;
             this.metrics = metrics;
             this.executedTasks = tasks;
         }
     }
-    
+
     public TaskTablePanel(java.util.List<SimulationResult> results) {
         setLayout(new BorderLayout());
-        
+
         if (results.isEmpty()) {
             add(new JLabel("Нет данных для отображения", SwingConstants.CENTER));
             return;
         }
-        
-        // Создаём вкладки для каждого планировщика
+
         JTabbedPane tabbedPane = new JTabbedPane();
-        
+
         for (SimulationResult result : results) {
             tabbedPane.addTab(result.schedulerName, createTableForScheduler(result));
         }
-        
+
         add(tabbedPane, BorderLayout.CENTER);
     }
-    
+
     private JScrollPane createTableForScheduler(SimulationResult result) {
-        // Заголовки таблицы
+        // Новые заголовки таблицы (чтобы видеть "правду" симуляции)
         String[] columns = {
-            "Задача", 
-            "Прибыл", 
-            "Длительность", 
-            "Начало", 
-            "Конец", 
-            "Ожидание", 
-            "Выполнение",
-            "Дедлайн",
-            "Статус"
+                "Задача",
+                "Тип",
+                "Прибыл",
+                "Длительность",
+                "IO",
+                "Response",
+                "CPU",
+                "Начало",
+                "Конец",
+                "Ожидание",
+                "Turnaround",
+                "Дедлайн",
+                "Статус"
         };
-        
-        // Создаём данные для таблицы
+
         Object[][] data = new Object[result.executedTasks.size()][columns.length];
-        
+
         for (int i = 0; i < result.executedTasks.size(); i++) {
             Task task = result.executedTasks.get(i);
-            data[i][0] = task.getId();
-            data[i][1] = task.getArrivalTime();
-            data[i][2] = task.getExecutionTime();
-            data[i][3] = task.getStartTime() != -1 ? task.getStartTime() : "—";
-            data[i][4] = task.getFinishTime() != -1 ? task.getFinishTime() : "—";
-            data[i][5] = task.getWaitingTime();
-            data[i][6] = task.getTurnaroundTime();
-            data[i][7] = task.getDeadline();
-            
-            // Статус с иконкой
+
+            int col = 0;
+            data[i][col++] = task.getId();
+            data[i][col++] = task.getType(); // CPU_BOUND / IO_BOUND
+            data[i][col++] = task.getArrivalTime();
+            data[i][col++] = task.getExecutionTime();
+
+            // IO-интервал имеет смысл только для IO_BOUND
+            data[i][col++] = (task.getType() == Task.TaskType.IO_BOUND) ? task.getIoInterval() : "—";
+
+            // Response time — когда задача впервые получила CPU
+            data[i][col++] = (task.getResponseTime() != -1) ? task.getResponseTime() : "—";
+
+            // Реально отработанное CPU-время (должно быть == executionTime для корректного завершения)
+            data[i][col++] = task.getTotalExecutionTime();
+
+            data[i][col++] = task.getStartTime() != -1 ? task.getStartTime() : "—";
+            data[i][col++] = task.getFinishTime() != -1 ? task.getFinishTime() : "—";
+
+            data[i][col++] = task.getWaitingTime();
+            data[i][col++] = task.getTurnaroundTime();
+            data[i][col++] = task.getDeadline();
+
+            // Статус
             if (task.isCompleted()) {
-                if (task.isDeadlineMissed()) {
-                    data[i][8] = "❌ Пропущен";
-                } else {
-                    data[i][8] = "✅ Выполнен";
-                }
+                data[i][col++] = task.isDeadlineMissed() ? "❌ Пропущен" : "✅ Выполнен";
             } else if (task.isStarted()) {
-                data[i][8] = "⏳ Выполняется";
+                data[i][col++] = "⏳ Выполняется";
             } else {
-                data[i][8] = "⏱️ Ожидает";
+                data[i][col++] = "⏱️ Ожидает";
             }
         }
-        
-        // Создаём таблицу
+
         JTable table = new JTable(data, columns) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false; // Нельзя редактировать
+                return false;
             }
         };
-        
+
         table.setRowHeight(30);
         table.setFont(new Font("Arial", Font.PLAIN, 12));
-        
-        // Настраиваем ширину столбцов
-        table.getColumnModel().getColumn(0).setPreferredWidth(60);  // Задача
-        table.getColumnModel().getColumn(1).setPreferredWidth(60);  // Прибыл
-        table.getColumnModel().getColumn(2).setPreferredWidth(80);  // Длительность
-        table.getColumnModel().getColumn(3).setPreferredWidth(60);  // Начало
-        table.getColumnModel().getColumn(4).setPreferredWidth(60);  // Конец
-        table.getColumnModel().getColumn(5).setPreferredWidth(70);  // Ожидание
-        table.getColumnModel().getColumn(6).setPreferredWidth(80);  // Выполнение
-        table.getColumnModel().getColumn(7).setPreferredWidth(70);  // Дедлайн
-        table.getColumnModel().getColumn(8).setPreferredWidth(100); // Статус
-        
-        // Раскрашиваем строки
+
+        // Ширины столбцов (под 13 колонок)
+        table.getColumnModel().getColumn(0).setPreferredWidth(60);   // Задача
+        table.getColumnModel().getColumn(1).setPreferredWidth(70);   // Тип
+        table.getColumnModel().getColumn(2).setPreferredWidth(55);   // Прибыл
+        table.getColumnModel().getColumn(3).setPreferredWidth(80);   // Длительность
+        table.getColumnModel().getColumn(4).setPreferredWidth(45);   // IO
+        table.getColumnModel().getColumn(5).setPreferredWidth(70);   // Response
+        table.getColumnModel().getColumn(6).setPreferredWidth(55);   // CPU
+        table.getColumnModel().getColumn(7).setPreferredWidth(55);   // Начало
+        table.getColumnModel().getColumn(8).setPreferredWidth(55);   // Конец
+        table.getColumnModel().getColumn(9).setPreferredWidth(70);   // Ожидание
+        table.getColumnModel().getColumn(10).setPreferredWidth(85);  // Turnaround
+        table.getColumnModel().getColumn(11).setPreferredWidth(65);  // Дедлайн
+        table.getColumnModel().getColumn(12).setPreferredWidth(110); // Статус
+
         table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value,
-                    boolean isSelected, boolean hasFocus, int row, int column) {
-                Component c = super.getTableCellRendererComponent(table, value, 
+                                                          boolean isSelected, boolean hasFocus,
+                                                          int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value,
                         isSelected, hasFocus, row, column);
-                
+
                 Task task = result.executedTasks.get(row);
-                
-                // Цвет фона в зависимости от статуса
+
+                // Фон по статусу
                 if (task.isDeadlineMissed()) {
-                    c.setBackground(new Color(255, 230, 230)); // светло-красный
+                    c.setBackground(new Color(255, 230, 230));
                 } else if (task.isCompleted()) {
-                    c.setBackground(new Color(230, 255, 230)); // светло-зелёный
+                    c.setBackground(new Color(230, 255, 230));
                 } else if (task.isStarted()) {
-                    c.setBackground(new Color(230, 240, 255)); // светло-синий
+                    c.setBackground(new Color(230, 240, 255));
                 } else {
                     c.setBackground(Color.WHITE);
                 }
-                
-                // Жирный шрифт для важных колонок
-                if (column == 0 || column == 8) {
+
+                // Жирный для ID и статуса
+                if (column == 0 || column == 12) {
                     c.setFont(c.getFont().deriveFont(Font.BOLD));
+                } else {
+                    c.setFont(c.getFont().deriveFont(Font.PLAIN));
                 }
-                
-                // Центрируем числа
-                if (column >= 1 && column <= 7) {
-                    ((JLabel) c).setHorizontalAlignment(SwingConstants.CENTER);
+
+                // Центрируем числа (колонки 2..11) + IO/Response/CPU тоже числа
+                if (c instanceof JLabel label) {
+                    if (column >= 2 && column <= 11) {
+                        label.setHorizontalAlignment(SwingConstants.CENTER);
+                    } else {
+                        label.setHorizontalAlignment(SwingConstants.LEFT);
+                    }
                 }
-                
+
                 return c;
             }
         });
-        
+
         return new JScrollPane(table);
     }
 }
