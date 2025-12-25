@@ -21,7 +21,6 @@ import java.util.Stack;
 	    @Override
 	    public void addTask(Task task) {
 	        stack.push(task);  // добавляем задачу в вершину стека
-	        System.out.println("Added task: " + task.getId() + " (Stack size: " + stack.size() + ")");
 	    }
 	    
 	    @Override
@@ -30,7 +29,6 @@ import java.util.Stack;
 	            return Optional.empty();
 	        }
 	        Task task = stack.pop();  // извлекаем задачу с вершины стека
-	        System.out.println("Processing task: " + task.getId() + " (Stack size: " + stack.size() + ")");
 	        return Optional.of(task);
 	    }
 	    

@@ -110,12 +110,4 @@ public class MinHeap {
         heap.set(j, temp);
     }
     
-    // выводит содержимое кучи
-    public void printHeap() {
-        System.out.print("Heap: ");
-        for (int i = 0; i < size; i++) {
-            System.out.print(heap.get(i).getId() + "(" + heap.get(i).getExecutionTime() + ") ");
-        }
-        System.out.println();
-    }
 }

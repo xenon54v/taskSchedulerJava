@@ -27,7 +27,6 @@ public class SJFScheduler implements Scheduler {
 	@Override
     public void addTask(Task task) {
         heap.insert(task);
-        System.out.println("Added task: " + task.getId() + " (time: " + task.getExecutionTime() + ")");
     }
 	
 	@Override
@@ -36,7 +35,6 @@ public class SJFScheduler implements Scheduler {
             return Optional.empty();
         }
         Task task = heap.extractMin();
-        System.out.println("Processing task: " + task.getId() + " (shortest time: " + task.getExecutionTime() + ")");
         return Optional.of(task);
     }
     
