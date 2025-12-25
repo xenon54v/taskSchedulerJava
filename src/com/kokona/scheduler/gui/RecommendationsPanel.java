@@ -25,7 +25,7 @@ public class RecommendationsPanel extends JPanel {
         if (results.size() < 2) return "Недостаточно данных для анализа";
         
         StringBuilder sb = new StringBuilder();
-        sb.append("🎯 РЕКОМЕНДАЦИИ ПО РЕЗУЛЬТАТАМ СИМУЛЯЦИИ\n");
+        sb.append("! РЕКОМЕНДАЦИИ ПО РЕЗУЛЬТАТАМ СИМУЛЯЦИИ\n");
         sb.append("=".repeat(50)).append("\n\n");
         
         // Используем массивы для обхода проблемы с final в лямбде
@@ -58,7 +58,7 @@ public class RecommendationsPanel extends JPanel {
         }
         
         // Анализ
-        sb.append("📊 АНАЛИЗ ПРОИЗВОДИТЕЛЬНОСТИ:\n");
+        sb.append("! АНАЛИЗ ПРОИЗВОДИТЕЛЬНОСТИ:\n");
         sb.append("- Лучший по времени ожидания: ").append(bestWaiting.schedulerName)
           .append(" (").append(String.format("%.2f", minWaiting)).append(")\n");
         sb.append("- Лучший по общему времени: ").append(bestTurnaround.schedulerName)
@@ -66,16 +66,16 @@ public class RecommendationsPanel extends JPanel {
         sb.append("- Лучший по дедлайнам: ").append(bestDeadlines.schedulerName)
           .append(" (").append(String.format("%.1f", minDeadlines)).append("% пропущено)\n\n");
         
-        sb.append("💡 РЕКОМЕНДАЦИИ:\n");
+        sb.append("! РЕКОМЕНДАЦИИ:\n");
         
         // Логика рекомендаций
         if (bestWaiting.schedulerName.contains("SJF")) {
-            sb.append("✅ SJF показал лучшие результаты по времени ожидания.\n");
+            sb.append("+ SJF показал лучшие результаты по времени ожидания.\n");
             sb.append("   Используйте его для систем, где важна отзывчивость.\n");
         }
         
         if (bestDeadlines.schedulerName.contains("FIFO")) {
-            sb.append("✅ FIFO лучше справляется с дедлайнами.\n");
+            sb.append("+ FIFO лучше справляется с дедлайнами.\n");
             sb.append("   Используйте для систем реального времени.\n");
         }
         
@@ -92,11 +92,11 @@ public class RecommendationsPanel extends JPanel {
         }
         
         if (lifoIsWorst) {
-            sb.append("⚠️  LIFO показал наихудшие результаты.\n");
+            sb.append("!  LIFO показал наихудшие результаты.\n");
             sb.append("   Не рекомендуется для production систем.\n");
         }
         
-        sb.append("\n🎭 ВЫВОД:\n");
+        sb.append("\n! ВЫВОД:\n");
         if (results.size() == 3) {
             sb.append("Для данной конфигурации задач оптимальным является ");
             if (minWaiting < minTurnaround * 0.9) {

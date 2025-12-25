@@ -51,8 +51,10 @@ public class TaskGenerator {
             int deadline = arrival + exec * (2 + random.nextInt(3)); // дедлайн = arrival + exec * (2-4)
             double weight = 0.5 + random.nextDouble() * 1.5; // вес 0.5-2.0
             boolean jitter = random.nextDouble() < 0.4; // 40% задач имеют джиттер
-            int ioInterval = (type == Task.TaskType.IO_BOUND) ? 2 + random.nextInt(5) : Integer.MAX_VALUE;
-
+            int ioInterval = (type == Task.TaskType.IO_BOUND)
+                    ? 1 + random.nextInt(3)   // 1..3: блокировки будут заметнее
+                    : Integer.MAX_VALUE;
+            
             // Создаем задачу через полный конструктор
             Task task = new Task(
                 "T" + i,                    // id
@@ -102,8 +104,11 @@ public class TaskGenerator {
             int deadline = arrival + exec * 3;
             double weight = 1.0;
             boolean jitter = false;
-            int ioInterval = (type == Task.TaskType.IO_BOUND) ? 3 : Integer.MAX_VALUE;
+            int ioInterval = (type == Task.TaskType.IO_BOUND)
+                    ? 1 + random.nextInt(3)
+                    : Integer.MAX_VALUE;
 
+            
             Task task = new Task(
                 type.name().charAt(0) + "" + i, // ID типа "C0", "I1" и т.д.
                 arrival, exec, priority, type, deadline, weight, jitter, ioInterval

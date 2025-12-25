@@ -6,7 +6,7 @@ import java.awt.*;
 public class ResultsWindow extends JFrame {
     
     public ResultsWindow(java.util.List<TaskTablePanel.SimulationResult> results) {
-        setTitle("📈 Результаты сравнения алгоритмов");
+        setTitle(" Результаты сравнения алгоритмов");
         setSize(1100, 700);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -15,20 +15,20 @@ public class ResultsWindow extends JFrame {
         JTabbedPane tabbedPane = new JTabbedPane();
         
         // Вкладка 1: Детальная таблица задач
-        tabbedPane.addTab("📋 Таблица выполнения", new TaskTablePanel(results));
+        tabbedPane.addTab(" Таблица выполнения", new TaskTablePanel(results));
         
         // Вкладка 2: Графики сравнения
-        tabbedPane.addTab("📊 Графики сравнения", new ComparisonChartsPanel(results));
+        tabbedPane.addTab(" Графики сравнения", new ComparisonChartsPanel(results));
         
         // Вкладка 3: Рекомендации
-        tabbedPane.addTab("🎯 Рекомендации", new RecommendationsPanel(results));
+        tabbedPane.addTab(" Рекомендации", new RecommendationsPanel(results));
         
         add(tabbedPane, BorderLayout.CENTER);
         
         // Панель с кнопками
         JPanel buttonPanel = new JPanel();
         
-        JButton saveButton = new JButton("💾 Сохранить отчёт");
+        JButton saveButton = new JButton("Сохранить отчёт");
         saveButton.addActionListener(e -> saveReport(results));
         
         JButton closeButton = new JButton("❌ Закрыть");

@@ -11,13 +11,13 @@ public class ComparisonChartsPanel extends JPanel {
         this.results = results;
         setLayout(new GridLayout(2, 2, 10, 10));
         
-        add(createChart("⏱️ Среднее время ожидания", 
+        add(createChart("+ Среднее время ожидания (тики)", 
             r -> r.metrics.getAverageWaitingTime()));
-        add(createChart("🔄 Среднее время выполнения", 
+        add(createChart("+ Среднее время выполнения (тики)", 
             r -> r.metrics.getAverageTurnaroundTime()));
-        add(createChart("⏰ Пропуски дедлайнов (%)", 
+        add(createChart("+ Пропуски дедлайнов (%)", 
             r -> r.metrics.getDeadlineMissRate()));
-        add(createChart("⚡ Эффективность (%)", 
+        add(createChart("+ Эффективность (%)", 
             r -> 100.0 - (100.0 * getTotalIdleTime(r.metrics) / r.metrics.getCurrentTime())));
     }
     
