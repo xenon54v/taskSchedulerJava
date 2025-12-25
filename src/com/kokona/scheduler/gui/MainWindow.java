@@ -221,73 +221,105 @@ public class MainWindow extends JFrame {
         // Проверяем, что выбран хотя бы один алгоритм
         if (!fifoCheck.isSelected() && !lifoCheck.isSelected() && !sjfCheck.isSelected()) {
             JOptionPane.showMessageDialog(this,
-                "Пожалуйста, выберите хотя бы один алгоритм планирования!",
-                "Ошибка",
-                JOptionPane.ERROR_MESSAGE);
+                    "Пожалуйста, выберите хотя бы один алгоритм планирования!",
+                    "Ошибка",
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
-        int taskCount = (Integer) taskCountSpinner.getValue();
-        int maxArrival = (Integer) arrivalSpinner.getValue();
-        int maxExec = (Integer) execSpinner.getValue();
-        
-        // Показываем загрузку
-        JDialog loadingDialog = new JDialog(this, "Запуск симуляции...", true);
-        loadingDialog.setSize(300, 100);
-        loadingDialog.setLocationRelativeTo(this);
-        loadingDialog.add(new JLabel("⏳ Генерирую задачи и запускаю симуляцию...", 
-                                    SwingConstants.CENTER));
-        loadingDialog.setVisible(true);
-        
-        // Запускаем в отдельном потоке, чтобы не блокировать GUI
-        new Thread(() -> {
-            try {
-                // Генерируем задачи
-                List<Task> tasks = TaskGenerator.generateTasks(taskCount, maxArrival, maxExec);
-                
-                // Создаем выбранные планировщики
-                List<Scheduler> schedulers = new java.util.ArrayList<>();
-                if (fifoCheck.isSelected()) schedulers.add(new FifoScheduler());
-                if (lifoCheck.isSelected()) schedulers.add(new LifoScheduler());
-                if (sjfCheck.isSelected()) schedulers.add(new SJFScheduler());
-                
-                // Запускаем симуляцию для каждого планировщика
-                List<TaskTablePanel.SimulationResult> allResults = new java.util.ArrayList<>();
-                
-                for (Scheduler scheduler : schedulers) {
-                    List<Task> clonedTasks = TaskGenerator.copyTasks(tasks);
-                    SchedulerMetrics metrics = SchedulerSimulator.simulate(scheduler, clonedTasks);
-                    
-                    TaskTablePanel.SimulationResult result = 
-                        new TaskTablePanel.SimulationResult(
-                            scheduler.getName(),
-                            metrics,
-                            clonedTasks
-                        );
-                    allResults.add(result);
-                }
-                
-                // Закрываем диалог загрузки
-                SwingUtilities.invokeLater(() -> {
-                    loadingDialog.dispose();
-                    
-                    // Открываем окно с результатами
-                    new ResultsWindow(allResults);
-                    
-                    // Показываем статистику
-                    showQuickStats(allResults);
-                });
-                
-            } catch (Exception e) {
-                SwingUtilities.invokeLater(() -> {
-                    loadingDialog.dispose();
-                    JOptionPane.showMessageDialog(this,
-                        "Ошибка при запуске симуляции: " + e.getMessage(),
-                        "Ошибка",
-                        JOptionPane.ERROR_MESSAGE);
-                });
-            }
-        }).start();
+
+        final int taskCount = (Integer) taskCountSpinner.getValue();
+        final int maxArrival = (Integer) arrivalSpinner.getValue();
+        final int maxExec = (Integer) execSpinner.getValue();
+
+        // Блокируем кнопку, чтобы не запустить несколько раз
+        runButton.setEnabled(false);
+
+        // Диалог прогресса (модальный), но показываем его корректно — через invokeLater,
+        // а саму работу делаем в SwingWorker.
+        final JDialog loadingDialog = createLoadingDialog();
+
+        SwingWorker<List<TaskTablePanel.SimulationResult>, Void> worker =
+                new SwingWorker<>() {
+                    @Override
+                    protected List<TaskTablePanel.SimulationResult> doInBackground() {
+                        // Генерируем задачи
+                        List<Task> tasks = TaskGenerator.generateTasks(taskCount, maxArrival, maxExec);
+
+                        // Создаем выбранные планировщики
+                        List<Scheduler> schedulers = new ArrayList<>();
+                        if (fifoCheck.isSelected()) schedulers.add(new FifoScheduler());
+                        if (lifoCheck.isSelected()) schedulers.add(new LifoScheduler());
+                        if (sjfCheck.isSelected()) schedulers.add(new SJFScheduler());
+
+                        // Запускаем симуляцию для каждого планировщика
+                        List<TaskTablePanel.SimulationResult> allResults = new ArrayList<>();
+
+                        for (Scheduler scheduler : schedulers) {
+                            List<Task> clonedTasks = TaskGenerator.copyTasks(tasks);
+                            SchedulerMetrics metrics = SchedulerSimulator.simulate(scheduler, clonedTasks);
+
+                            allResults.add(new TaskTablePanel.SimulationResult(
+                                    scheduler.getName(),
+                                    metrics,
+                                    clonedTasks
+                            ));
+                        }
+
+                        return allResults;
+                    }
+
+                    @Override
+                    protected void done() {
+                        // done() всегда вызывается в EDT — тут безопасно трогать UI
+                        try {
+                            List<TaskTablePanel.SimulationResult> allResults = get();
+
+                            loadingDialog.dispose();
+                            runButton.setEnabled(true);
+
+                            // Открываем окно с результатами
+                            new ResultsWindow(allResults);
+
+                            // Показываем статистику
+                            showQuickStats(allResults);
+
+                        } catch (Exception e) {
+                            loadingDialog.dispose();
+                            runButton.setEnabled(true);
+
+                            String msg = (e.getCause() != null) ? e.getCause().getMessage() : e.getMessage();
+                            JOptionPane.showMessageDialog(MainWindow.this,
+                                    "Ошибка при запуске симуляции: " + msg,
+                                    "Ошибка",
+                                    JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                };
+
+        worker.execute();
+
+        // Показываем диалог ПОСЛЕ старта worker (и корректно из EDT)
+        SwingUtilities.invokeLater(() -> loadingDialog.setVisible(true));
+    }
+
+    private JDialog createLoadingDialog() {
+        JDialog dialog = new JDialog(this, "Запуск симуляции…", true);
+        dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+        dialog.setSize(360, 140);
+        dialog.setLocationRelativeTo(this);
+
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+
+        JLabel label = new JLabel("⏳ Генерирую задачи и запускаю симуляцию…", SwingConstants.CENTER);
+        JProgressBar bar = new JProgressBar();
+        bar.setIndeterminate(true);
+
+        panel.add(label, BorderLayout.CENTER);
+        panel.add(bar, BorderLayout.SOUTH);
+
+        dialog.setContentPane(panel);
+        return dialog;
     }
     
     private void showQuickStats(List<TaskTablePanel.SimulationResult> results) {
