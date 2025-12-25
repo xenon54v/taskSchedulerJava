@@ -181,4 +181,49 @@ public class TaskGenerator {
         System.out.printf("Среднее время выполнения: %.1f\n", avgExec);
         System.out.printf("Средний приоритет: %.1f\n", avgPriority);
     }
+    
+    public static List<Task> generateTasksWithIoShare(int count, int maxArrival, int maxExec, double ioShare) {
+        if (ioShare < 0 || ioShare > 1) {
+            throw new IllegalArgumentException("ioShare must be in [0..1]");
+        }
+
+        List<Task> tasks = new ArrayList<>();
+
+        for (int i = 0; i < count; i++) {
+            int arrival = random.nextInt(maxArrival);
+            int exec = 1 + random.nextInt(maxExec);
+            int priority = 1 + random.nextInt(10);
+
+            Task.TaskType type = (random.nextDouble() < ioShare)
+                    ? Task.TaskType.IO_BOUND
+                    : Task.TaskType.CPU_BOUND;
+
+            int deadline = arrival + exec * (2 + random.nextInt(3));
+            double weight = 0.5 + random.nextDouble() * 1.5;
+            boolean jitter = random.nextDouble() < 0.4;
+
+            // С учётом того, что мы добавили IO-блокировки:
+            // пусть IO задачи блокируются заметно (1..3), CPU — никогда
+            int ioInterval = (type == Task.TaskType.IO_BOUND)
+                    ? 1 + random.nextInt(3)
+                    : Integer.MAX_VALUE;
+
+            Task task = new Task(
+                    "T" + i,
+                    arrival,
+                    exec,
+                    priority,
+                    type,
+                    deadline,
+                    weight,
+                    jitter,
+                    ioInterval
+            );
+
+            tasks.add(task);
+        }
+
+        tasks.sort((a, b) -> Integer.compare(a.getArrivalTime(), b.getArrivalTime()));
+        return tasks;
+    }
 }

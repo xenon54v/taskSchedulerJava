@@ -19,6 +19,8 @@ public class MainWindow extends JFrame {
     private JCheckBox fifoCheck, lifoCheck, sjfCheck;
     private JButton runButton;
     private JTextArea logArea;
+    private double scenarioIoShare = 0.5; // по умолчанию 50% IO, можно менять сценариями
+
     
     public MainWindow() {
         setTitle("Task Scheduler Simulator - Сценарии");
@@ -99,11 +101,14 @@ public class MainWindow extends JFrame {
             "Показать преимущество Shortest Job First",
             new Color(70, 130, 180), 
             () -> {
-                taskCountSpinner.setValue(15);
+                taskCountSpinner.setValue(25);
                 arrivalSpinner.setValue(20);
-                execSpinner.setValue(30);
+                execSpinner.setValue(80);
+
+                scenarioIoShare = 0.15; // 15% IO, в основном CPU -> SJF выигрывает честно
+
                 fifoCheck.setSelected(true);
-                lifoCheck.setSelected(true);
+                lifoCheck.setSelected(false);
                 sjfCheck.setSelected(true);
             });
         
@@ -112,9 +117,12 @@ public class MainWindow extends JFrame {
             "Все алгоритмы работают примерно одинаково",
             new Color(46, 204, 113),
             () -> {
-                taskCountSpinner.setValue(10);
-                arrivalSpinner.setValue(50);
-                execSpinner.setValue(15);
+                taskCountSpinner.setValue(18);
+                arrivalSpinner.setValue(120);
+                execSpinner.setValue(8);
+
+                scenarioIoShare = 0.20; // немного IO, но мало конкуренции -> алгоритмы похожи
+
                 fifoCheck.setSelected(true);
                 lifoCheck.setSelected(true);
                 sjfCheck.setSelected(true);
@@ -125,9 +133,12 @@ public class MainWindow extends JFrame {
             "LIFO показывает худший результат",
             new Color(220, 20, 60),
             () -> {
-                taskCountSpinner.setValue(20);
+                taskCountSpinner.setValue(35);
                 arrivalSpinner.setValue(5);
-                execSpinner.setValue(40);
+                execSpinner.setValue(60);
+
+                scenarioIoShare = 0.30; // умеренно IO, но главное — плотные прибытия
+
                 fifoCheck.setSelected(true);
                 lifoCheck.setSelected(true);
                 sjfCheck.setSelected(true);
@@ -138,11 +149,14 @@ public class MainWindow extends JFrame {
             "Реалистичное распределение задач",
             new Color(155, 89, 182),
             () -> {
-                taskCountSpinner.setValue(12);
-                arrivalSpinner.setValue(100);
-                execSpinner.setValue(40);
+                taskCountSpinner.setValue(16);
+                arrivalSpinner.setValue(180);
+                execSpinner.setValue(45);
+
+                scenarioIoShare = 0.65; // много IO, “реалистичнее” для десктоп/серверных нагрузок
+
                 fifoCheck.setSelected(true);
-                lifoCheck.setSelected(false); // LIFO обычно не используется
+                lifoCheck.setSelected(false);
                 sjfCheck.setSelected(true);
             });
         
@@ -166,8 +180,10 @@ public class MainWindow extends JFrame {
         
         button.addActionListener(e -> {
             action.run();
-            JOptionPane.showMessageDialog(this, 
-                "Сценарий '" + title + "' загружен!\n" + tooltip,
+            JOptionPane.showMessageDialog(this,
+                "Сценарий '" + title + "' загружен!\n" +
+                tooltip + "\n" +
+                "Доля IO-задач: " + (int)(scenarioIoShare * 100) + "%",   // ← добавили
                 "Сценарий установлен",
                 JOptionPane.INFORMATION_MESSAGE);
         });
@@ -246,7 +262,7 @@ public class MainWindow extends JFrame {
                     @Override
                     protected List<TaskTablePanel.SimulationResult> doInBackground() {
                         // Генерируем задачи
-                        List<Task> tasks = TaskGenerator.generateTasks(taskCount, maxArrival, maxExec);
+                    	List<Task> tasks = TaskGenerator.generateTasksWithIoShare(taskCount, maxArrival, maxExec, scenarioIoShare);
 
                         // Создаем выбранные планировщики
                         List<Scheduler> schedulers = new ArrayList<>();

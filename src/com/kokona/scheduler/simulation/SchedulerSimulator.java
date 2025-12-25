@@ -26,13 +26,14 @@ public class SchedulerSimulator {
             final int now = metrics.getCurrentTime();
 
             // 1) Добавляем все задачи, которые "пришли" в момент now
-            while (arrivalIndex < tasks.size() && tasks.get(arrivalIndex).getArrivalTime() == now) {
+            while (arrivalIndex < tasks.size() && tasks.get(arrivalIndex).getArrivalTime() <= now) {
                 Task t = tasks.get(arrivalIndex);
                 if (!t.isCompleted()) {
                     scheduler.addTask(t);
                 }
                 arrivalIndex++;
             }
+
 
             // 2) Если нет текущей задачи — берём следующую, но пропускаем заблокированные
             if (currentTask == null) {
@@ -44,25 +45,28 @@ public class SchedulerSimulator {
 
             // 3) Если есть текущая задача — выполняем один тик с учётом IO
             if (currentTask != null) {
-                boolean completed = currentTask.executeOneTickWithIo(now, IO_BLOCK_DURATION);
+                currentTask.unblockIfNeeded(now);
 
-                // Тик времени прошёл (CPU работал 1 тик)
+                // если заблокирована в начале тика — CPU простаивает
+                if (currentTask.isBlocked(now)) {
+                    scheduler.addTask(currentTask);
+                    currentTask = null;
+                    metrics.recordIdleTime();
+                    continue;
+                }
+
+                boolean completed = currentTask.executeOneTickWithIo(now, IO_BLOCK_DURATION);
                 metrics.incrementTime();
 
                 if (completed) {
                     currentTask.setFinishTime(metrics.getCurrentTime());
                     metrics.recordTaskCompletion(currentTask);
                     currentTask = null;
-                } else {
-                    // Если после тика задача стала заблокированной (IO),
-                    // возвращаем её в очередь и освобождаем CPU
-                    if (currentTask.isBlocked(metrics.getCurrentTime())) {
-                        scheduler.addTask(currentTask);
-                        currentTask = null;
-                    }
+                } else if (currentTask.isBlocked(metrics.getCurrentTime())) {
+                    scheduler.addTask(currentTask);
+                    currentTask = null;
                 }
             } else {
-                // 4) CPU простаивает — тик времени проходит, idleTime растёт
                 metrics.recordIdleTime();
             }
 
