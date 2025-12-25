@@ -22,9 +22,9 @@ public class ComparisonChartsPanel extends JPanel {
     }
     
     private double getTotalIdleTime(SchedulerMetrics metrics) {
-        // Предполагаем, что есть метод getTotalIdleTime()
-        // Если нет, можно вычислить:
-        return metrics.getCurrentTime() - metrics.getCompletedTasks(); // Упрощённо
+        return metrics.getCurrentTime() == 0
+                ? 0
+                : metrics.getTotalIdleTime();
     }
     
     private JPanel createChart(String title, 
